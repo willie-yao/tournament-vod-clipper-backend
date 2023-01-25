@@ -1,10 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import youtubeDl from 'youtube-dl-exec';
+import fs from 'fs';
 import bodyParser from 'body-parser';
 
 const app = express()
-const port = 3000
+const port = 5000
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,16 +20,33 @@ app.get('/getUrl', (req, res) => {
   })
 })
 
-app.get('/downloadVideo', (req, res) => {
+app.get('/downloadTest', (req, res) => {
   youtubeDl(
-    req.body.url,
+    "https://www.twitch.tv/videos/1714445111",
     {
-      "externalDownloader": "wget",
-      "downloadSections": "*"+ req.body.startTime + "-" + req.body.endTime
+      "downloadSections": "*"+ "20:00" + "-" + "20:10",
+      output: "video.mp4",
     }
   ).then(output => {
-    console.log(output)
-    res.send("Success!")
+    res.download("./"+ "video" + ".mp4")
+    var stats = fs.statSync("./video.mp4")
+    console.log(stats.size)
+    console.log("hello")
+  })
+})
+
+app.get('/downloadVideo', (req, res) => {
+  youtubeDl(
+    req.query.url,
+    {
+      "downloadSections": "*"+ req.query.startTime + "-" + req.query.endTime,
+      output: "video.mp4",
+    }
+  ).then(output => {
+    res.download("./"+ "video" + ".mp4")
+    var stats = fs.statSync("./video.mp4")
+    console.log(stats.size)
+    console.log("hello")
   })
 })
 
